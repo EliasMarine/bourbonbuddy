@@ -79,7 +79,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/', icon: <Home size={18} /> },
-    { name: 'My Collection', href: '/collection', icon: <GlencairnGlass width={18} height={18} fillLevel={70} /> },
+    { name: 'My Collection', href: '/collection', icon: <User size={18} /> },
     { name: 'Explore', href: '/explore', icon: <Globe size={18} /> },
     { name: 'Live Tastings', href: '/streams', icon: <Tv size={18} /> },
     { name: 'About', href: '/about', icon: <BookOpen size={18} /> },
@@ -175,21 +175,6 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
-
-              {/* Add another navigation item for the modern bottle demo */}
-              <Link
-                href="/demo/modern-bottle"
-                className={`px-3 py-1.5 rounded-lg text-base font-medium flex items-center ${
-                  pathname === '/demo/modern-bottle'
-                    ? isScrolled 
-                      ? 'text-amber-500 bg-gray-800' 
-                      : 'text-amber-500 bg-gray-900/50'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-                }`}
-              >
-                <GlencairnGlass className="w-4 h-4 mr-2" fillLevel={60} />
-                Modern Bottle
-              </Link>
             </nav>
 
             {/* Authentication/Profile Section */}
@@ -256,7 +241,7 @@ export default function Navbar() {
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <span className="flex items-center gap-2">
-                            <GlencairnGlass width={16} height={16} fillLevel={70} />
+                            <User size={16} />
                             My Collection
                           </span>
                         </Link>
