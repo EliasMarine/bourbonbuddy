@@ -1,18 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "installCommand": "npm install --legacy-peer-deps",
-        "nodeVersion": "22.x"
-      }
-    }
-  ],
-  "env": {
-    "NEXT_PUBLIC_VERCEL_ENV": "production"
-  },
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
   "framework": "nextjs",
   "nodeVersion": "22.x"
 }
