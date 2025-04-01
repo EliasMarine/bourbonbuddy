@@ -2,42 +2,54 @@ import { S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 
-// Ensure environment variables exist
-if (!process.env.AWS_ACCESS_KEY_ID) {
-  throw new Error('Missing AWS_ACCESS_KEY_ID environment variable');
+// Helper function to validate environment variables and return typed config
+function getValidatedS3Config() {
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const region = process.env.AWS_REGION;
+  const bucketName = process.env.AWS_BUCKET_NAME;
+  const endpoint = process.env.AWS_ENDPOINT;
+
+  if (!accessKeyId) throw new Error('Missing AWS_ACCESS_KEY_ID environment variable');
+  if (!secretAccessKey) throw new Error('Missing AWS_SECRET_ACCESS_KEY environment variable');
+  if (!region) throw new Error('Missing AWS_REGION environment variable');
+  if (!bucketName) throw new Error('Missing AWS_BUCKET_NAME environment variable');
+  if (!endpoint) throw new Error('Missing AWS_ENDPOINT environment variable');
+
+  return {
+    accessKeyId,
+    secretAccessKey,
+    region,
+    bucketName,
+    endpoint
+  };
 }
 
-if (!process.env.AWS_SECRET_ACCESS_KEY) {
-  throw new Error('Missing AWS_SECRET_ACCESS_KEY environment variable');
-}
+// Lazy initialization of S3 client
+let s3ClientInstance: S3Client | null = null;
 
-if (!process.env.AWS_REGION) {
-  throw new Error('Missing AWS_REGION environment variable');
+export function getS3Client(): S3Client {
+  if (!s3ClientInstance) {
+    const config = getValidatedS3Config();
+    s3ClientInstance = new S3Client({
+      region: config.region,
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+      },
+      endpoint: `https://${config.endpoint}`,
+      forcePathStyle: true,
+    });
+  }
+  return s3ClientInstance;
 }
-
-if (!process.env.AWS_BUCKET_NAME) {
-  throw new Error('Missing AWS_BUCKET_NAME environment variable');
-}
-
-if (!process.env.AWS_ENDPOINT) {
-  throw new Error('Missing AWS_ENDPOINT environment variable');
-}
-
-// Create a custom S3 client for Mega S3
-export const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-  endpoint: `https://${process.env.AWS_ENDPOINT}`,
-  forcePathStyle: true,
-});
 
 // Modified upload function for Mega S3
 export async function uploadToS3(file: Buffer, key: string): Promise<string> {
+  const s3Client = getS3Client();
+  const config = getValidatedS3Config();
   const command = new PutObjectCommand({
-    Bucket: process.env.AWS_BUCKET_NAME,
+    Bucket: config.bucketName,
     Key: key,
     Body: file,
     ContentType: 'image/jpeg',
@@ -47,13 +59,15 @@ export async function uploadToS3(file: Buffer, key: string): Promise<string> {
   await s3Client.send(command);
   
   // Construct the URL using Mega's format
-  return `https://${process.env.AWS_ENDPOINT}/${process.env.AWS_BUCKET_NAME}/${key}`;
+  return `https://${config.endpoint}/${config.bucketName}/${key}`;
 }
 
 // Function to generate signed upload URL
 export async function getSignedUploadUrl(key: string): Promise<string> {
+  const s3Client = getS3Client();
+  const config = getValidatedS3Config();
   const command = new PutObjectCommand({
-    Bucket: process.env.AWS_BUCKET_NAME,
+    Bucket: config.bucketName,
     Key: key,
     ContentType: 'application/octet-stream',
     ACL: 'public-read',
@@ -61,10 +75,10 @@ export async function getSignedUploadUrl(key: string): Promise<string> {
 
   // Log the command for debugging
   console.log('S3 command details:', {
-    bucket: process.env.AWS_BUCKET_NAME,
+    bucket: config.bucketName,
     key,
-    endpoint: process.env.AWS_ENDPOINT,
-    region: process.env.AWS_REGION,
+    endpoint: config.endpoint,
+    region: config.region,
   });
 
   return await getSignedUrl(s3Client, command, { expiresIn: 3600 });

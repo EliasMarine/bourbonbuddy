@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { s3Client } from '@/lib/s3';
-import { PutObjectCommand, ListBucketsCommand } from '@aws-sdk/client-s3';
+import { getS3Client } from '@/lib/s3';
+import { ListBucketsCommand } from '@aws-sdk/client-s3';
 
 export async function GET() {
   try {
@@ -16,6 +16,7 @@ export async function GET() {
 
     // Test the S3 connection by listing buckets
     try {
+      const s3Client = getS3Client();
       const listBucketsCommand = new ListBucketsCommand({});
       const listBucketsResponse = await s3Client.send(listBucketsCommand);
       return NextResponse.json({ 
