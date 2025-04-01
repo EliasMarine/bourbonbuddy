@@ -12,5 +12,7 @@
   ],
   "env": {
     "NEXT_PUBLIC_VERCEL_ENV": "production"
-  }
+  },
+  "framework": "nextjs",
+  "nodeVersion": "22.x"
 }
