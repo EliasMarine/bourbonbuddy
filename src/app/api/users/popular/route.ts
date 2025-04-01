@@ -22,7 +22,9 @@ export async function GET(request: Request) {
       select: {
         id: true,
         name: true,
-        avatar: true,
+        username: true,
+        email: true,
+        image: true,
       },
       where: {
         // Filter out current user and ensure users have spirits

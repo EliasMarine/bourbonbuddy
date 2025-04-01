@@ -22,7 +22,7 @@ async function main() {
       email: 'john@example.com',
       username: 'johndoe',
       password,
-      avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+      image: 'https://randomuser.me/api/portraits/men/1.jpg',
       publicProfile: true,
     },
   });
@@ -33,7 +33,7 @@ async function main() {
       email: 'jane@example.com',
       username: 'janesmith',
       password,
-      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+      image: 'https://randomuser.me/api/portraits/women/1.jpg',
       publicProfile: true,
     },
   });

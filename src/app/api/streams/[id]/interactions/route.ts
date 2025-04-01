@@ -1,17 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { PrismaClient } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  request: Request,
-  context: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const streamId = context.params.id;
+    const streamId = request.nextUrl.pathname.split('/')[4]; // Extract ID from pathname
 
     // Get total likes count
     const likesCount = await prisma.streamLike.count({

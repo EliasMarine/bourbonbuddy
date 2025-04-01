@@ -63,7 +63,7 @@ export async function GET(
         owner: {
           select: {
             name: true,
-            avatar: true,
+            image: true,
           }
         },
         createdAt: true,
@@ -87,7 +87,7 @@ export async function GET(
       rating: spirit.rating,
       ownerId: spirit.ownerId,
       ownerName: spirit.owner.name || 'Anonymous',
-      ownerAvatar: spirit.owner.avatar
+      ownerAvatar: spirit.owner.image
     }));
 
     return NextResponse.json({ spirits: formattedSpirits });

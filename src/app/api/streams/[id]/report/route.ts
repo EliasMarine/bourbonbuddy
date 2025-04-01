@@ -1,14 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { PrismaClient } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-export async function POST(
-  request: Request,
-  context: { params: { id: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -19,7 +16,7 @@ export async function POST(
       );
     }
 
-    const streamId = context.params.id;
+    const streamId = request.nextUrl.pathname.split('/')[4];
     const { reason } = await request.json();
 
     // Get user

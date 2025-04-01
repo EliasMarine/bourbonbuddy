@@ -156,7 +156,8 @@ export function useSocket(streamId: string) {
               
               // If socket options exist and include WebSocket, retry with polling
               const opts = socket.io?.opts;
-              if (opts && opts.transports && opts.transports.includes('websocket')) {
+              if (opts && opts.transports && Array.isArray(opts.transports) && 
+                  opts.transports.includes('websocket' as any)) {
                 console.log('Firefox transport error - switching to polling only');
                 
                 // Force polling only
@@ -239,7 +240,7 @@ export function useSocket(streamId: string) {
         connected: true,
         
         // Event handling
-        on: function(event: string, callback: Function) {
+        on: function(this: any, event: string, callback: Function) {
           if (!mockHandlers[event]) {
             mockHandlers[event] = [];
           }
@@ -247,7 +248,7 @@ export function useSocket(streamId: string) {
           return this;
         },
         
-        off: function(event: string, callback?: Function) {
+        off: function(this: any, event: string, callback?: Function) {
           if (!mockHandlers[event]) return this;
           
           if (callback) {
@@ -258,7 +259,7 @@ export function useSocket(streamId: string) {
           return this;
         },
         
-        once: function(event: string, callback: Function) {
+        once: function(this: any, event: string, callback: Function) {
           const onceWrapper = (...args: any[]) => {
             this.off(event, onceWrapper);
             callback.apply(this, args);
@@ -266,7 +267,7 @@ export function useSocket(streamId: string) {
           return this.on(event, onceWrapper);
         },
         
-        emit: function(event: string, ...args: any[]) {
+        emit: function(this: any, event: string, ...args: any[]) {
           console.log('Mock hook socket emit:', event, args);
           
           // Handle joining stream
@@ -280,7 +281,7 @@ export function useSocket(streamId: string) {
         },
         
         // Trigger an event to all listeners
-        _triggerEvent: function(event: string, ...args: any[]) {
+        _triggerEvent: function(this: any, event: string, ...args: any[]) {
           const callbacks = mockHandlers[event] || [];
           callbacks.forEach(callback => {
             try {
@@ -291,14 +292,14 @@ export function useSocket(streamId: string) {
           });
         },
         
-        removeAllListeners: function() {
+        removeAllListeners: function(this: any) {
           Object.keys(mockHandlers).forEach(event => {
             delete mockHandlers[event];
           });
           return this;
         },
         
-        disconnect: function() {
+        disconnect: function(this: any) {
           console.log('Mock hook socket disconnecting');
           this.connected = false;
           return this;
