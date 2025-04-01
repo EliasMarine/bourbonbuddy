@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function POST(
       );
     }
 
-    const streamId = params.id;
+    const streamId = context.params.id;
 
     // Get user
     const user = await prisma.user.findUnique({

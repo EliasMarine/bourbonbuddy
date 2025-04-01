@@ -13,7 +13,7 @@ const TipSchema = z.object({
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -25,7 +25,7 @@ export async function POST(
       );
     }
 
-    const streamId = params.id;
+    const streamId = context.params.id;
     const body = await request.json();
 
     // Validate request body
