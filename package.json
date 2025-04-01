@@ -2,6 +2,9 @@
   "name": "bourbon-buddy",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "// Development scripts": "",
     "// Use dev for regular development without real-time features": "",
