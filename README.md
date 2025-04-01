@@ -67,4 +67,4 @@ npm run start
 
 📜 License: Custom Personal IP Non-Commercial Use License v1.0  
 This project is the intellectual property of Elias Bou Zeid.  
-**Non-commercial use only**. Contact elias.bou.zeid@gmail.com for commercial licensing.
+**Non-commercial use only**. Contact bourbonbuddy@bitspec.co for commercial licensing.
