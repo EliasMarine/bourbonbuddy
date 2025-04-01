@@ -62,4 +62,9 @@ For production deployment, the app automatically uses the real-time server:
 ```bash
 npm run build
 npm run start
-``` 
+```
+
+
+📜 License: Custom Personal IP Non-Commercial Use License v1.0  
+This project is the intellectual property of Elias Bou Zeid.  
+**Non-commercial use only**. Contact bourbonbuddy@bitspec.co for commercial licensing.

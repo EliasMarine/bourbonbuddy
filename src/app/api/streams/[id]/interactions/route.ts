@@ -7,11 +7,11 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const streamId = params.id;
+    const streamId = context.params.id;
 
     // Get total likes count
     const likesCount = await prisma.streamLike.count({
