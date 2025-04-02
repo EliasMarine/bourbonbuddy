@@ -325,17 +325,6 @@ export default function Navbar() {
                         </Link>
                         
                         <Link 
-                          href="/profile/reset-password"
-                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                          onClick={() => setIsProfileOpen(false)}
-                        >
-                          <span className="flex items-center gap-2">
-                            <Key size={16} />
-                            Change Password
-                          </span>
-                        </Link>
-                        
-                        <Link 
                           href="/profile/reset-credentials"
                           className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                           onClick={() => setIsProfileOpen(false)}
@@ -510,15 +499,6 @@ export default function Navbar() {
                           >
                             <Shield className="mr-3" size={18} />
                             Security Settings
-                          </Link>
-                          
-                          <Link
-                            href="/profile/reset-password"
-                            className="px-3 py-2.5 rounded-lg font-medium flex items-center text-gray-300 hover:text-white hover:bg-gray-800/50"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            <Key className="mr-3" size={18} />
-                            Change Password
                           </Link>
                           
                           <Link

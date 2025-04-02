@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import SpiritCard from '@/components/collection/SpiritCard';
 import AddSpiritForm from '@/components/collection/AddSpiritForm';
 import { Spirit } from '@/types';
@@ -174,11 +175,15 @@ export default function CollectionPage() {
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-black/50 z-10"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent z-10"></div>
-        <img 
-          src="/images/whiskey-background.jpg" 
-          alt="Whiskey background" 
-          className="w-full h-full object-cover"
-        />
+        <div className="absolute inset-0 overflow-hidden">
+          <Image 
+            src="/images/backgrounds/Collection background/collection_background.jpg?v=1"
+            alt="Collection background"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
       </div>
       
       {/* Noise texture overlay */}

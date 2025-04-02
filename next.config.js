@@ -1,19 +1,34 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true,
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "192.168.1.193"]
+      allowedOrigins: [process.env.NEXTAUTH_URL || 'http://localhost:3000']
     },
   },
   // Updated for modern Next.js standards
   serverExternalPackages: ['argon2'],
   images: {
-    unoptimized: true,
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'bourbonbuddy.s3.ca-west-1.s4.mega.io',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
         pathname: '**',
       },
     ],
@@ -50,7 +65,18 @@ const nextConfig = {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
-          // Add keep-alive for WebSocket connections
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
           {
             key: 'Connection',
             value: 'keep-alive',

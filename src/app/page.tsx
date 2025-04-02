@@ -1,56 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Star, Database, Tv, Globe, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, Star, Database, Tv, Globe, ArrowUpRight, Wine, GlassWater, Glasses } from 'lucide-react';
+import HeroSection from '@/components/home/HeroSection';
 
 export default function Home() {
   return (
     <>
-      {/* Hero Section - with Apple-like fullscreen imagery and minimal text */}
-      <section className="relative min-h-[100vh] flex items-center">
-        {/* Background with overlay */}
-        <div className="absolute inset-0 bg-black/30 z-10"></div>
-        <div className="absolute inset-0 overflow-hidden">
-          <Image 
-            src="/images/backgrounds/Bourbon_barrerls.jpg" 
-            alt="Bourbon barrels" 
-            fill
-            priority
-            className="object-cover"
-          />
-        </div>
-        
-        {/* Hero Content - Apple-inspired centered and minimal */}
-        <div className="container relative mx-auto px-6 md:px-8 z-30 flex flex-col items-center text-center h-full pt-32 md:pt-0">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 text-white leading-tight tracking-tight">
-            Track Your <span className="text-amber-500">Whiskey</span><br />Journey
-          </h1>
-          <p className="text-xl md:text-2xl mb-10 text-gray-200 max-w-2xl font-light">
-            Discover, catalog, and share your bourbon collection with elegance.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-5">
-            <Link
-              href="/collection"
-              className="bg-amber-600 text-white px-8 py-4 rounded-full hover:bg-amber-700 transition-all duration-300 font-medium shadow-lg text-lg flex items-center justify-center gap-2 group"
-            >
-              Start Your Collection
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              href="/streams"
-              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white px-8 py-4 rounded-full transition-all duration-300 font-medium text-lg flex items-center justify-center"
-            >
-              Explore Tastings
-            </Link>
-          </div>
-        </div>
-
-        {/* Apple-style scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-          <div className="w-8 h-14 border-2 border-white/50 rounded-full flex justify-center pt-2">
-            <div className="w-1.5 h-3 bg-white/70 rounded-full animate-pulse"></div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section with client-side component for image handling */}
+      <HeroSection />
 
       {/* Features Section - With Apple-inspired clean cards and microinteractions */}
       <section className="py-28 bg-gray-900">
@@ -115,29 +72,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Global Community Section - Apple-style statistics showcase */}
+      {/* Global Community Section - Whiskey Showcase */}
       <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800">
         <div className="container mx-auto px-6 md:px-8">
           <div className="text-center mb-16">
             <span className="text-amber-500 text-sm font-medium tracking-widest uppercase mb-3 block">Community</span>
             <h2 className="text-4xl md:text-5xl font-bold mb-5">Join Whiskey Enthusiasts</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto font-light">
-              Connect with thousands of collectors and enthusiasts worldwide.
+              Connect with collectors and enthusiasts worldwide.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-4xl mx-auto">
-            <div className="text-center">
-              <p className="text-5xl md:text-6xl font-bold text-white mb-2">10k+</p>
-              <p className="text-gray-400">Active Users</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="relative h-80 rounded-2xl overflow-hidden group bg-gray-800/40 backdrop-blur-sm border border-white/5 hover:border-amber-500/20 transition-all duration-300">
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <Wine className="w-24 h-24 text-amber-500 mb-4" />
+                <p className="text-white text-2xl font-medium">Premium Bourbons</p>
+                <p className="text-gray-400 mt-2">Discover rare and unique bottles</p>
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-5xl md:text-6xl font-bold text-white mb-2">50k+</p>
-              <p className="text-gray-400">Bottles Tracked</p>
+            <div className="relative h-80 rounded-2xl overflow-hidden group bg-gray-800/40 backdrop-blur-sm border border-white/5 hover:border-amber-500/20 transition-all duration-300">
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <GlassWater className="w-24 h-24 text-amber-500 mb-4" />
+                <p className="text-white text-2xl font-medium">Rye Whiskeys</p>
+                <p className="text-gray-400 mt-2">Explore bold and spicy spirits</p>
+              </div>
             </div>
-            <div className="text-center">
-              <p className="text-5xl md:text-6xl font-bold text-white mb-2">2k+</p>
-              <p className="text-gray-400">Live Tastings</p>
+            <div className="relative h-80 rounded-2xl overflow-hidden group bg-gray-800/40 backdrop-blur-sm border border-white/5 hover:border-amber-500/20 transition-all duration-300">
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <Glasses className="w-24 h-24 text-amber-500 mb-4" />
+                <p className="text-white text-2xl font-medium">Scotch Whiskies</p>
+                <p className="text-gray-400 mt-2">Experience traditional craftsmanship</p>
+              </div>
             </div>
           </div>
         </div>

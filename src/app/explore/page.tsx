@@ -53,8 +53,26 @@ const FilterDropdown = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.filter-dropdown')) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
+  
   return (
-    <div className="relative">
+    <div className="relative filter-dropdown">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-amber-500 transition-all"
@@ -64,7 +82,7 @@ const FilterDropdown = ({
       </button>
       
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
           <div className="p-2">
             {options.map((option, index) => (
               <button
@@ -298,7 +316,7 @@ export default function ExplorePage() {
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg p-5 mb-8 border border-gray-700"
+          className="relative z-30 bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg p-5 mb-8 border border-gray-700"
         >
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-white flex items-center">
@@ -393,7 +411,7 @@ export default function ExplorePage() {
       )}
 
       {/* Popular Collectors */}
-      <section className="mb-12">
+      <section className="relative z-20 mb-12">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white flex items-center">
             <Flame className="h-5 w-5 mr-2 text-amber-500" />
@@ -411,37 +429,30 @@ export default function ExplorePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {popularUsers.map(user => (
               <Link 
-                href={`/profile/${user.id}`} 
+                href={`/users/${user.id}`} 
                 key={user.id}
+                className="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors"
               >
-                <motion.div 
-                  whileHover={{ y: -5 }}
-                  className="bg-gray-800/70 backdrop-blur-sm rounded-xl p-5 border border-gray-700/50 hover:border-amber-500/50 transition-all shadow-lg h-full"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 rounded-full bg-gray-700 flex-shrink-0 overflow-hidden relative ring-2 ring-amber-500 ring-offset-2 ring-offset-gray-800">
-                      {user.avatar ? (
-                        <Image 
-                          src={user.avatar} 
-                          alt={user.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-amber-600 text-white text-xl font-bold">
-                          {user.name[0].toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-white text-lg">{user.name}</h3>
-                      <div className="flex items-center text-amber-500 font-medium">
-                        <Wine className="h-4 w-4 mr-1" />
-                        <span>{user.spiritsCount} {user.spiritsCount === 1 ? 'spirit' : 'spirits'}</span>
+                <div className="flex items-center gap-4">
+                  <div className="relative w-16 h-16">
+                    {user.avatar ? (
+                      <Image
+                        src={user.avatar}
+                        alt={user.name}
+                        fill
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
+                        <User className="w-8 h-8 text-gray-400" />
                       </div>
-                    </div>
+                    )}
                   </div>
-                </motion.div>
+                  <div>
+                    <h3 className="font-semibold text-white">{user.name}</h3>
+                    <p className="text-gray-400">{user.spiritsCount} spirits</p>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
@@ -453,7 +464,7 @@ export default function ExplorePage() {
       </section>
 
       {/* Featured Spirits */}
-      <section>
+      <section className="relative z-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white flex items-center">
             <Tag className="h-5 w-5 mr-2 text-amber-500" />
