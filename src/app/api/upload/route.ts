@@ -5,9 +5,17 @@ import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
 // Create Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+// Use SUPABASE_SERVICE_ROLE_KEY as primary, with SUPABASE_SERVICE_KEY as fallback
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+
+// Check if required environment variables are present
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Missing required Supabase environment variables in upload route');
+  throw new Error('Missing Supabase configuration. Please check environment variables.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // POST /api/upload - Handle file uploads
 export async function POST(request: Request) {
