@@ -62,6 +62,20 @@ export default withAuth(
   }
 );
 
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+
+  // Add CORS headers for Socket.IO
+  if (request.nextUrl.pathname.startsWith('/api/socketio')) {
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', '*');
+    response.headers.set('Access-Control-Max-Age', '86400');
+  }
+
+  return response;
+}
+
 export const config = {
   matcher: [
     // Auth protected routes

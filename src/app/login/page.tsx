@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createSupabaseBrowserClient } from '@/lib/supabase';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,6 +13,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [supabase, setSupabase] = useState<any>(null);
+
+  // Initialize Supabase client
+  useEffect(() => {
+    try {
+      const supabaseClient = createSupabaseBrowserClient();
+      setSupabase(supabaseClient);
+    } catch (err) {
+      console.error('Failed to initialize Supabase client:', err);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,9 +51,34 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialSignIn = (provider: string) => {
+  const handleSocialSignIn = async (provider: string) => {
     setIsLoading(true);
-    signIn(provider, { callbackUrl: '/dashboard' });
+    setError('');
+
+    try {
+      // For Facebook, use Supabase directly
+      if (provider === 'facebook' && supabase) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'facebook',
+          options: {
+            redirectTo: `${window.location.origin}/dashboard`,
+          },
+        });
+
+        if (error) {
+          console.error('Supabase Facebook login error:', error);
+          setError(`Facebook login failed: ${error.message}`);
+        }
+      } else {
+        // For all other providers, use NextAuth
+        await signIn(provider, { callbackUrl: '/dashboard' });
+      }
+    } catch (error) {
+      console.error(`${provider} sign-in error:`, error);
+      setError(`Failed to sign in with ${provider}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -67,6 +104,7 @@ export default function LoginPage() {
           <button
             onClick={() => handleSocialSignIn('google')}
             className="group relative w-full flex justify-center py-2 px-4 border border-gray-600 text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            disabled={isLoading}
           >
             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
               <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
@@ -78,6 +116,7 @@ export default function LoginPage() {
           <button
             onClick={() => handleSocialSignIn('facebook')}
             className="group relative w-full flex justify-center py-2 px-4 border border-gray-600 text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            disabled={isLoading}
           >
             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
               <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
@@ -89,6 +128,7 @@ export default function LoginPage() {
           <button
             onClick={() => handleSocialSignIn('apple')}
             className="group relative w-full flex justify-center py-2 px-4 border border-gray-600 text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            disabled={isLoading}
           >
             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
               <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
@@ -101,6 +141,7 @@ export default function LoginPage() {
           <button
             onClick={() => handleSocialSignIn('github')}
             className="group relative w-full flex justify-center py-2 px-4 border border-gray-600 text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            disabled={isLoading}
           >
             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
               <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">

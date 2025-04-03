@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Wine, User, Star, Calendar } from 'lucide-react';
+import { getCoverPhotoUrl, getInitialLetter, DEFAULT_AVATAR_BG } from '@/lib/utils';
 
 interface UserProfile {
   id: string;
@@ -204,8 +205,10 @@ export default function UserProfilePage() {
                 className="rounded-full object-cover"
               />
             ) : (
-              <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center">
-                <User className="w-12 h-12 text-gray-400" />
+              <div className={`w-24 h-24 ${DEFAULT_AVATAR_BG} rounded-full flex items-center justify-center`}>
+                <span className="text-white text-2xl font-bold">
+                  {getInitialLetter(userProfile.name)}
+                </span>
               </div>
             )}
           </div>

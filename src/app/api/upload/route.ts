@@ -1,17 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+// Create Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // POST /api/upload - Handle file uploads
 export async function POST(request: Request) {
@@ -32,25 +28,36 @@ export async function POST(request: Request) {
     // Generate a unique filename
     const fileExtension = file.name.split('.').pop();
     const randomName = crypto.randomBytes(32).toString('hex');
-    const key = `user-uploads/${session.user.id}/${randomName}.${fileExtension}`;
+    const filePath = `user-uploads/${session.user.id}/${randomName}.${fileExtension}`;
 
     // Get the file buffer
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Upload to S3
-    const command = new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: key,
-      Body: buffer,
-      ContentType: file.type,
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('bourbon-buddy-uploads')
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
+      return NextResponse.json(
+        { error: 'Failed to upload file' },
+        { status: 500 }
+      );
+    }
+
+    // Get the public URL
+    const { data: urlData } = supabase.storage
+      .from('bourbon-buddy-uploads')
+      .getPublicUrl(filePath);
+
+    return NextResponse.json({ 
+      success: true, 
+      url: urlData.publicUrl 
     });
-
-    await s3Client.send(command);
-
-    // Generate the URL
-    const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
-
-    return NextResponse.json({ success: true, url });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(

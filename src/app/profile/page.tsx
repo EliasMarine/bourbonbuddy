@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Camera, MapPin, Briefcase, GraduationCap, Calendar, Edit, Settings, Share2, Wine, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { getCoverPhotoUrl, getInitialLetter, DEFAULT_AVATAR_BG } from '@/lib/utils';
 
 export default function ProfilePage() {
   const { data: session, status, update: updateSession } = useSession();
@@ -27,9 +28,6 @@ export default function ProfilePage() {
     redirect('/login');
   }
 
-  // Use a gradient as default cover photo
-  const defaultCoverPhoto = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDI9IjAlIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzJkMzc0OCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFhMjAyYyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiLz48L3N2Zz4=';
-
   const handleImageUpload = async (file: File, type: 'profile' | 'cover') => {
     if (!file) return;
 
@@ -40,7 +38,6 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append('file', file);
       
-      // You'll need to implement this endpoint to handle file uploads to your storage
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -68,8 +65,10 @@ export default function ProfilePage() {
         throw new Error('Failed to update profile');
       }
 
-      // Update the session to reflect the changes
-      await updateSession();
+      const { user } = await response.json();
+      
+      // Force a session update with the new user data
+      await updateSession({ user });
       
       toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo updated successfully`);
     } catch (error) {
@@ -116,7 +115,7 @@ export default function ProfilePage() {
       <div className="relative h-[300px] md:h-[400px]">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/90">
           <Image
-            src={session.user?.coverPhoto || defaultCoverPhoto}
+            src={getCoverPhotoUrl(session.user?.coverPhoto)}
             alt="Cover"
             fill
             className="object-cover"
@@ -141,14 +140,16 @@ export default function ProfilePage() {
             <div className="w-[168px] h-[168px] rounded-full border-4 border-gray-900 overflow-hidden relative bg-gray-800">
               {session.user?.image ? (
                 <Image
-                  src={session.user.image}
+                  src={`${session.user.image}${session.user.image?.includes('?') ? '&' : '?'}_cb=${Date.now()}`}
                   alt={session.user.name || 'Profile'}
                   fill
                   className="object-cover"
+                  priority={true}
+                  unoptimized={true}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-amber-600 text-white text-4xl font-bold">
-                  {session.user?.name?.[0].toUpperCase()}
+                <div className={`w-full h-full flex items-center justify-center ${DEFAULT_AVATAR_BG} text-white text-4xl font-bold`}>
+                  {getInitialLetter(session.user?.name)}
                 </div>
               )}
             </div>

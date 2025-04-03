@@ -12,10 +12,10 @@ export const metadata = {
   description: 'Your personal bourbon collection manager and streaming platform',
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' }
+      { url: '/images/svg logo icon/Glencairn/Bourbon Budy (200 x 50 px) (Logo)(1).svg', type: 'image/svg+xml' }
     ],
     apple: [
-      { url: '/favicon.ico' }
+      { url: '/images/svg logo icon/Glencairn/Bourbon Budy (200 x 50 px) (Logo)(1).svg', type: 'image/svg+xml' }
     ]
   }
 }
@@ -28,8 +28,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <link rel="icon" href="/images/svg logo icon/Glencairn/Bourbon Budy (200 x 50 px) (Logo)(1).svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/images/svg logo icon/Glencairn/Bourbon Budy (200 x 50 px) (Logo)(1).svg" type="image/svg+xml" />
       </head>
       <body className={`${inter.className} min-h-screen bg-gray-900 text-white`}>
         <ClientLayout>

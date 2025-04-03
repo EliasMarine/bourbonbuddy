@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { PrismaClient } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma'; // Use shared prisma instance
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 const CreateStreamSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100),
@@ -52,7 +50,7 @@ export async function GET() {
   } catch (error) {
     console.error('Streams GET error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -81,7 +79,7 @@ export async function POST(request: Request) {
           id: true,
           name: true,
           email: true,
-          image: true, // Updated from avatar to image based on User model schema
+          image: true,
         },
       });
 
@@ -116,7 +114,7 @@ export async function POST(request: Request) {
               id: true,
               name: true,
               email: true,
-              image: true, // Updated from avatar to image
+              image: true,
             },
           },
           spirit: validatedData.spiritId ? {
@@ -133,7 +131,6 @@ export async function POST(request: Request) {
       if (validatedData.privacy === 'private' && validatedData.invitedEmails?.length) {
         // Here you would handle sending invitations to the provided emails
         console.log('Inviting users to private stream:', validatedData.invitedEmails);
-        // This would be implemented with your email service
       }
 
       return NextResponse.json(stream);
@@ -198,7 +195,7 @@ export async function PATCH(request: Request) {
   } catch (error) {
     console.error('Streams PATCH error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

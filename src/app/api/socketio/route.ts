@@ -4,51 +4,31 @@ import { Server as HTTPServer } from 'http';
 import { Socket } from 'net';
 
 /**
- * IMPORTANT: This route is only used as a fallback for Socket.IO when the custom server.js
- * is not being used. For production or full functionality, please run:
- * - Development: `npm run dev:socket`
- * - Production: `npm run start:socket`
+ * IMPORTANT: This route provides Socket.IO support in serverless environments like Vercel.
+ * It has limitations compared to a custom server implementation.
  * 
- * These commands use the custom server implementation in server.js at the project root,
- * which provides a more robust Socket.IO implementation with proper WebSocket support.
+ * For local development with full WebRTC and streaming features:
+ * - Use `npm run dev:socket` which uses the custom server.js implementation
  */
 
-interface SocketServer extends HTTPServer {
-  io?: IOServer;
-}
-
-interface SocketWithIO extends Socket {
-  server: SocketServer;
-}
-
-// This keeps track of the Socket.IO server instance
+// Global singleton to maintain socket.io instance across serverless function calls
 let io: IOServer | undefined;
+let connections = 0;
 
+// Handle WebSocket upgrade - not fully supported in serverless functions
 export async function GET(req: Request) {
-  if (io) {
-    return NextResponse.json({
-      status: 'ok',
-      message: 'Socket.IO server is already running',
-      socketCount: io.engine?.clientsCount || 0
-    });
-  }
-
   try {
-    // Check if we can get server from request to initialize Socket.IO
     const url = new URL(req.url);
     const searchParams = url.searchParams;
     const forceNewServer = searchParams.get('force') === 'true';
 
-    if (forceNewServer) {
-      // This is just a placeholder - in App Router we need to set up Socket.IO differently
-      // This endpoint mainly serves as a health check
-      console.log('Received force=true parameter but cannot create new server in route handler');
-    }
-
+    // Return status information
     return NextResponse.json({
       status: 'ok',
-      message: 'Socket.IO endpoint is accessible. Socket.IO server should be initialized via middleware or server component.',
-      note: 'For production use, consider setting up Socket.IO with a custom server'
+      message: 'Socket.IO endpoint is accessible. For full WebRTC streaming support, please use a custom server setup.',
+      connections: connections,
+      serverless: true,
+      environment: process.env.NODE_ENV || 'unknown'
     });
   } catch (err) {
     console.error('Error in Socket.IO route handler:', err);

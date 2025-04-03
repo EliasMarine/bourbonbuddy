@@ -8,12 +8,14 @@
   "scripts": {
     "// Development scripts": "",
     "// Use dev for regular development without real-time features": "",
-    "dev": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/pre-startup.ts && next dev --turbo",
+    "dev": "next dev",
+    "dev:socket": "node server.js",
     "// Use dev:realtime for WebSockets, chat, and streaming features": "",
     "dev:realtime": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/pre-startup.ts && node server.js",
     "// Build and deployment scripts": "",
-    "build": "prisma generate && next build",
-    "start": "ts-node scripts/pre-startup.ts && NODE_ENV=production node server.js",
+    "build": "next build",
+    "start": "next start",
+    "start:socket": "NODE_ENV=production node server.js",
     "start:next": "ts-node scripts/pre-startup.ts && next start",
     "// Other utilities": "",
     "lint": "next lint",
@@ -24,7 +26,10 @@
     "db:verify": "ts-node scripts/verify-database.ts",
     "db:check": "ts-node scripts/check-db.ts",
     "db:migrate": "ts-node scripts/safe-migrate.ts",
-    "db:cron-backup": "ts-node scripts/cron-backup.ts"
+    "db:cron-backup": "ts-node scripts/cron-backup.ts",
+    "vercel-build": "prisma generate && next build",
+    "deploy": "next build && vercel deploy --prod",
+    "deploy:socket": "vercel deploy --prod"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

@@ -95,7 +95,7 @@ export default function Navbar() {
     if (session?.user?.image) {
       return (
         <Image 
-          src={session.user.image} 
+          src={`${session.user.image}${session.user.image?.includes('?') ? '&' : '?'}_cb=${Date.now()}`}
           alt="Profile" 
           width={32} 
           height={32} 
@@ -116,7 +116,7 @@ export default function Navbar() {
     if (session?.user?.image) {
       return (
         <Image 
-          src={session.user.image} 
+          src={`${session.user.image}${session.user.image?.includes('?') ? '&' : '?'}_cb=${Date.now()}`}
           alt="Profile" 
           width={40} 
           height={40} 
@@ -207,11 +207,13 @@ export default function Navbar() {
                       <div className="px-4 py-4 border-b border-gray-700 flex items-center gap-3">
                         {session.user?.image ? (
                           <Image 
-                            src={session.user.image} 
+                            src={`${session.user.image}${session.user.image?.includes('?') ? '&' : '?'}_cb=${Date.now()}`}
                             alt="Profile" 
                             width={50} 
                             height={50} 
                             className="w-12 h-12 rounded-full object-cover border-2 border-amber-500"
+                            unoptimized={true}
+                            priority={true}
                           />
                         ) : (
                           <div className="w-12 h-12 rounded-full bg-amber-600/20 flex items-center justify-center text-amber-500 font-bold text-xl">

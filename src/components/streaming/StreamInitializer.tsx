@@ -630,10 +630,8 @@ export default function StreamInitializer({
       }
       
       // Use configured socket URL, fallback to generated URL
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 
-                       (process.env.NODE_ENV === 'development' 
-                        ? 'http://localhost:3000' 
-                        : `${window.location.protocol}//${window.location.host}`);
+      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL ||
+        (typeof window !== 'undefined' ? window.location.origin : 'https://bourbonbuddy-eliasbouzeid-pmmes-projects.vercel.app');
       
       console.log('Connecting to socket server at:', socketUrl);
       
@@ -644,74 +642,39 @@ export default function StreamInitializer({
         socketRef.current = null;
       }
       
-      // Firefox-specific socket options
-      const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
-      const socketOptions = {
-        path: process.env.NEXT_PUBLIC_SOCKET_PATH || '/api/socketio',
-        transports: isFirefox ? ['polling'] : ['polling', 'websocket'], // Start with polling for Firefox
-        reconnectionDelayMax: 10000,
-        reconnectionAttempts: process.env.NODE_ENV === 'production' ? 5 : 10,
-        timeout: process.env.NODE_ENV === 'production' ? 20000 : 30000,
+      // When creating the socket, add fallback mechanism
+      socketRef.current = io(socketUrl, {
+        path: '/api/socketio',
+        transports: ['polling', 'websocket'],
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 20000,
         autoConnect: true,
-        forceNew: true,
-        withCredentials: process.env.NEXT_PUBLIC_SOCKET_CREDENTIALS === 'true',
-        // Firefox-specific options
-        upgrade: !isFirefox, // Disable transport upgrade for Firefox
-        rememberUpgrade: false,
-        polling: {
-          extraHeaders: {
-            'User-Agent': navigator.userAgent // Help identify Firefox clients
-          }
-        }
-      };
+        forceNew: true
+      });
 
-      console.log('Initializing socket with options:', socketOptions);
-      socketRef.current = io(socketUrl, socketOptions);
-
-      // Handle WebSocket specific errors
-      const handleWebSocketError = (event: Event) => {
-        console.error('WebSocket direct error event:', event);
+      // Add explicit error handling
+      socketRef.current.on('connect_error', (err) => {
+        console.warn('Socket connection error, attempting fallback mechanism:', err.message);
         
-        // Show specific error for WebSocket connection issues
-        toast.error('WebSocket connection failed. Using polling transport.');
-        
-        // Force polling only mode
-        if (socketRef.current) {
-          console.log('Switching to polling transport only');
-          socketRef.current.io.opts.transports = ['polling'];
+        // Try reconnecting with polling only if there's a WebSocket issue
+        if (err.message.includes('websocket')) {
+          const fallbackSocket = io(socketUrl, {
+            path: '/api/socketio',
+            transports: ['polling'],
+            reconnectionAttempts: 3,
+            timeout: 30000,
+            forceNew: true
+          });
           
-          // Try to reconnect
-          setTimeout(() => {
-            if (socketRef.current && !socketRef.current.connected) {
-              socketRef.current.connect();
-            }
-          }, 1000);
+          // Replace the original socket with the fallback if it connects
+          fallbackSocket.on('connect', () => {
+            console.log('Fallback socket connected successfully');
+            // Replace socket reference with the fallback
+            socketRef.current = fallbackSocket;
+          });
         }
-      };
-      
-      // Set up a global WebSocket error handler
-      // This attaches directly to the WebSocket API to catch errors that Socket.IO might miss
-      if (typeof window !== 'undefined') {
-        // Store the original WebSocket constructor for cleanup
-        if (!(window as any)._originalWebSocket) {
-          (window as any)._originalWebSocket = window.WebSocket;
-
-          // The WebSocket constructor can be monkeypatched to catch errors
-          // @ts-ignore - We're intentionally monkeypatching for error detection
-          window.WebSocket = function(url: string, protocols?: string | string[]) {
-            const ws = new (window as any)._originalWebSocket(url, protocols);
-            
-            // Add our error handler
-            ws.addEventListener('error', handleWebSocketError);
-            
-            return ws;
-          };
-          
-          // Ensure prototype and other properties are preserved
-          window.WebSocket.prototype = (window as any)._originalWebSocket.prototype;
-          Object.defineProperties(window.WebSocket, Object.getOwnPropertyDescriptors((window as any)._originalWebSocket));
-        }
-      }
+      });
 
       // Set up connection event handlers
       socketRef.current.on('connect', () => {
@@ -826,7 +789,7 @@ export default function StreamInitializer({
           
           // Attempt to reconnect manually
           setTimeout(() => {
-            if (socketRef.current && !socketRef.current.connected) {
+            if (socketRef.current && socketRef.current.connected === false) {
               socketRef.current.connect();
             }
           }, 2000);

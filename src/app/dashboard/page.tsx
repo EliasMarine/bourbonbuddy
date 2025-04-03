@@ -1,27 +1,61 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createSupabaseBrowserClient } from '@/lib/supabase';
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { data: nextAuthSession, status: nextAuthStatus } = useSession();
+  const [supabaseSession, setSupabaseSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  if (status === 'loading') {
-    return <div>Loading...</div>;
+  // Check for Supabase session
+  useEffect(() => {
+    const checkSupabaseSession = async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data } = await supabase.auth.getSession();
+        setSupabaseSession(data.session);
+      } catch (error) {
+        console.error('Error checking Supabase session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (nextAuthStatus !== 'loading') {
+      checkSupabaseSession();
+    }
+  }, [nextAuthStatus]);
+
+  // Show loading state while checking auth
+  if (nextAuthStatus === 'loading' || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+      </div>
+    );
   }
 
-  if (!session) {
+  // Redirect if no session
+  if (!nextAuthSession && !supabaseSession) {
     redirect('/login');
+    return null;
   }
+
+  // Determine user info from either auth system
+  const user = nextAuthSession?.user || supabaseSession?.user;
+  const userName = user?.name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-12rem)] container mx-auto px-4 py-8 mt-6">
       <div className="max-w-4xl mx-auto w-full">
         <h1 className="text-3xl font-bold mb-8 flex flex-wrap items-baseline">
           <span className="mr-2">Welcome back,</span> 
-          <span className="truncate max-w-[60%]">{session.user?.name || 'User'}!</span>
+          <span className="truncate max-w-[60%]">{userName}!</span>
         </h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

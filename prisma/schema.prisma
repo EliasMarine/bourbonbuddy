@@ -4,15 +4,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id               String    @id @default(cuid())
+  id               String               @id @default(cuid())
   name             String?
-  email            String    @unique
-  username         String?   @unique
+  email            String               @unique
+  username         String?              @unique
   password         String?
   image            String?
   coverPhoto       String?
@@ -23,10 +22,13 @@ model User {
   emailVerified    DateTime?
   resetToken       String?
   resetTokenExpiry DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  publicProfile    Boolean   @default(true)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  publicProfile    Boolean              @default(true)
   accounts         Account[]
+  comments         Comment[]
+  following        Follows[]            @relation("follower")
+  followers        Follows[]            @relation("following")
   reviews          Review[]
   sessions         Session[]
   spirits          Spirit[]
@@ -35,12 +37,9 @@ model User {
   streamReports    StreamReport[]
   subscribers      StreamSubscription[] @relation("HostSubscriptions")
   subscriptions    StreamSubscription[] @relation("Subscriptions")
-  tipsSent         StreamTip[]          @relation("TipsSent")
   tipsReceived     StreamTip[]          @relation("TipsReceived")
-  comments         Comment[]
+  tipsSent         StreamTip[]          @relation("TipsSent")
   streamViews      StreamView[]
-  followers        Follows[]            @relation("following")
-  following        Follows[]            @relation("follower")
 }
 
 model Session {
@@ -81,19 +80,19 @@ model Spirit {
 }
 
 model Stream {
-  id          String    @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String?
-  isLive      Boolean   @default(false)
+  isLive      Boolean        @default(false)
   startedAt   DateTime?
   endedAt     DateTime?
-  privacy     String    @default("public")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  privacy     String         @default("public")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   hostId      String
   spiritId    String?
-  spirit      Spirit?   @relation(fields: [spiritId], references: [id])
-  host        User      @relation(fields: [hostId], references: [id])
+  host        User           @relation(fields: [hostId], references: [id])
+  spirit      Spirit?        @relation(fields: [spiritId], references: [id])
   likes       StreamLike[]
   reports     StreamReport[]
   tips        StreamTip[]
@@ -112,11 +111,11 @@ model StreamLike {
 }
 
 model StreamSubscription {
-  id        String   @id @default(cuid())
-  hostId    String
-  userId    String
-  createdAt DateTime @default(now())
-  host      User     @relation("HostSubscriptions", fields: [hostId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  hostId     String
+  userId     String
+  createdAt  DateTime @default(now())
+  host       User     @relation("HostSubscriptions", fields: [hostId], references: [id], onDelete: Cascade)
   subscriber User     @relation("Subscriptions", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([hostId, userId])
@@ -127,7 +126,7 @@ model StreamReport {
   streamId  String
   userId    String
   reason    String?
-  status    String   @default("pending") // pending, reviewed, resolved
+  status    String   @default("pending")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
@@ -135,16 +134,16 @@ model StreamReport {
 }
 
 model Review {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   content   String
-  rating    Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  rating    Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   userId    String
   spiritId  String
-  spirit    Spirit   @relation(fields: [spiritId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  Comment[]
+  spirit    Spirit    @relation(fields: [spiritId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -181,9 +180,9 @@ model StreamTip {
   senderId  String
   hostId    String
   createdAt DateTime @default(now())
-  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
-  sender    User     @relation("TipsSent", fields: [senderId], references: [id], onDelete: Cascade)
   host      User     @relation("TipsReceived", fields: [hostId], references: [id], onDelete: Cascade)
+  sender    User     @relation("TipsSent", fields: [senderId], references: [id], onDelete: Cascade)
+  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
 
   @@index([streamId])
   @@index([senderId])
@@ -202,21 +201,21 @@ model Comment {
 }
 
 model StreamView {
-  id        String   @id @default(cuid())
-  joinedAt  DateTime @default(now())
-  leftAt    DateTime?
-  streamId  String
-  userId    String
-  stream    Stream   @relation(fields: [streamId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  id       String    @id @default(cuid())
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
+  streamId String
+  userId   String
+  stream   Stream    @relation(fields: [streamId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
 }
 
 model Follows {
-  follower    User     @relation("follower", fields: [followerId], references: [id])
   followerId  String
-  following   User     @relation("following", fields: [followingId], references: [id])
   followingId String
   createdAt   DateTime @default(now())
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  following   User     @relation("following", fields: [followingId], references: [id])
 
   @@id([followerId, followingId])
 }
