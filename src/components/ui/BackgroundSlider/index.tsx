@@ -29,9 +29,21 @@ export default function BackgroundSlider({
   const [nextIndex, setNextIndex] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
-  // Refs for timers
+  // Refs for timers and current state
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const transitionId = useRef<NodeJS.Timeout | null>(null);
+  const imagesCount = useRef(imagesList.length);
+  
+  // Store current indices in refs to avoid dependency issues
+  const activeIndexRef = useRef(activeIndex);
+  const nextIndexRef = useRef(nextIndex);
+  
+  // Update refs when state changes
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+    nextIndexRef.current = nextIndex;
+    imagesCount.current = imagesList.length;
+  }, [activeIndex, nextIndex, imagesList.length]);
   
   // Safe image paths with proper encoding for spaces
   const safeImagePaths = imagesList.map(path => path.replace(/\s/g, '%20'));
@@ -41,35 +53,36 @@ export default function BackgroundSlider({
     // Skip slideshow for single image
     if (imagesList.length <= 1) return;
     
-    const startSlideshow = () => {
-      // Clear any existing timers
-      if (intervalId.current) clearInterval(intervalId.current);
-      if (transitionId.current) clearTimeout(transitionId.current);
+    // Function to handle transitions
+    const handleTransition = () => {
+      // Skip if already transitioning
+      if (isTransitioning) return;
       
-      // Set up the slideshow interval
-      intervalId.current = setInterval(() => {
-        // Start transition
-        setIsTransitioning(true);
+      // Start transition
+      setIsTransitioning(true);
+      
+      // After transition completes
+      transitionId.current = setTimeout(() => {
+        // Calculate indices based on refs (not state)
+        const current = nextIndexRef.current;
+        const next = (nextIndexRef.current + 1) % imagesCount.current;
         
-        // After transition completes
-        transitionId.current = setTimeout(() => {
-          // Update indices for next transition
-          setActiveIndex(nextIndex);
-          setNextIndex((nextIndex + 1) % imagesList.length);
-          setIsTransitioning(false);
-        }, transitionDuration);
-      }, interval);
+        // Update state with calculated indices
+        setActiveIndex(current);
+        setNextIndex(next);
+        setIsTransitioning(false);
+      }, transitionDuration);
     };
     
-    // Start the slideshow
-    startSlideshow();
+    // Start interval
+    intervalId.current = setInterval(handleTransition, interval);
     
     // Cleanup on unmount
     return () => {
       if (intervalId.current) clearInterval(intervalId.current);
       if (transitionId.current) clearTimeout(transitionId.current);
     };
-  }, [imagesList.length, interval, nextIndex, transitionDuration]);
+  }, [imagesList.length, interval, transitionDuration, isTransitioning]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
