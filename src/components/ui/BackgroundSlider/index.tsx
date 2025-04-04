@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import OptimizedImage from './ImageOptimizer';
 
 interface BackgroundSliderProps {
@@ -16,63 +16,93 @@ export default function BackgroundSlider({
   transitionDuration = 2000, // Default to 2 seconds
   overlay
 }: BackgroundSliderProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [nextImageIndex, setNextImageIndex] = useState(1);
+  // Ensure we have at least 2 valid images
+  const validImages = images.filter(img => img); // Filter out empty strings
+  const imagesList = validImages.length === 0 
+    ? ['/images/backgrounds/Homepage background/bourbon_bg.png'] // Default image
+    : validImages.length === 1 
+      ? [...validImages, ...validImages] // Duplicate if only one image
+      : validImages;
+  
+  // State for tracking images and transitions
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [nextIndex, setNextIndex] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
+  
+  // Refs for timers
+  const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const transitionId = useRef<NodeJS.Timeout | null>(null);
+  
+  // Safe image paths with proper encoding for spaces
+  const safeImagePaths = imagesList.map(path => path.replace(/\s/g, '%20'));
+  
+  // Set up the slideshow effect
   useEffect(() => {
-    if (images.length <= 1) return; // Don't animate if there's only one image
-
-    const intervalId = setInterval(() => {
-      setIsTransitioning(true);
+    // Skip slideshow for single image
+    if (imagesList.length <= 1) return;
+    
+    const startSlideshow = () => {
+      // Clear any existing timers
+      if (intervalId.current) clearInterval(intervalId.current);
+      if (transitionId.current) clearTimeout(transitionId.current);
       
-      // After transition duration, update the current image and reset
-      const transitionTimeoutId = setTimeout(() => {
-        setCurrentImageIndex(nextImageIndex);
-        setNextImageIndex((nextImageIndex + 1) % images.length);
-        setIsTransitioning(false);
-      }, transitionDuration);
-
-      return () => clearTimeout(transitionTimeoutId);
-    }, interval);
-
-    return () => clearInterval(intervalId);
-  }, [currentImageIndex, nextImageIndex, images, interval, transitionDuration]);
-
-  // Generate image paths with proper encoding for spaces
-  const safeImagePaths = images.map(path => path.replace(/\s/g, '%20'));
+      // Set up the slideshow interval
+      intervalId.current = setInterval(() => {
+        // Start transition
+        setIsTransitioning(true);
+        
+        // After transition completes
+        transitionId.current = setTimeout(() => {
+          // Update indices for next transition
+          setActiveIndex(nextIndex);
+          setNextIndex((nextIndex + 1) % imagesList.length);
+          setIsTransitioning(false);
+        }, transitionDuration);
+      }, interval);
+    };
+    
+    // Start the slideshow
+    startSlideshow();
+    
+    // Cleanup on unmount
+    return () => {
+      if (intervalId.current) clearInterval(intervalId.current);
+      if (transitionId.current) clearTimeout(transitionId.current);
+    };
+  }, [imagesList.length, interval, nextIndex, transitionDuration]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Current image */}
-      <OptimizedImage
-        src={safeImagePaths[currentImageIndex]}
-        alt="Background"
-        isVisible={!isTransitioning}
-        transitionDuration={transitionDuration}
-      />
+      {/* Active image */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          opacity: isTransitioning ? 0 : 1,
+          transition: `opacity ${transitionDuration/1000}s ease-in-out`
+        }}
+      >
+        <OptimizedImage
+          src={safeImagePaths[activeIndex]}
+          alt="Background"
+          isVisible={true}
+          transitionDuration={0} // No transition here - we handle it in the parent div
+        />
+      </div>
 
       {/* Next image (for crossfade) */}
-      <OptimizedImage
-        src={safeImagePaths[nextImageIndex]}
-        alt="Background"
-        isVisible={isTransitioning}
-        transitionDuration={transitionDuration}
-      />
-
-      {/* Additional images to preload */}
-      <div className="hidden">
-        {safeImagePaths.map((path, index) => (
-          index !== currentImageIndex && index !== nextImageIndex && (
-            <OptimizedImage
-              key={`preload-${index}`}
-              src={path}
-              alt="Preload background"
-              isVisible={false}
-              transitionDuration={0}
-            />
-          )
-        ))}
+      <div 
+        className="absolute inset-0"
+        style={{
+          opacity: isTransitioning ? 1 : 0,
+          transition: `opacity ${transitionDuration/1000}s ease-in-out`
+        }}
+      >
+        <OptimizedImage
+          src={safeImagePaths[nextIndex]}
+          alt="Background"
+          isVisible={true}
+          transitionDuration={0} // No transition here - we handle it in the parent div
+        />
       </div>
 
       {/* Optional overlay */}
