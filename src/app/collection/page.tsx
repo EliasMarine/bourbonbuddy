@@ -175,8 +175,8 @@ export default function CollectionPage() {
         <div className="absolute inset-0 bg-black/50 z-10"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent z-10"></div>
         <img 
-          src="/images/whiskey-background.jpg" 
-          alt="Whiskey background" 
+          src="/images/backgrounds/Collection/nick-rickert-RSBfKgAaBGc-unsplash.jpg" 
+          alt="Collection background" 
           className="w-full h-full object-cover"
         />
       </div>

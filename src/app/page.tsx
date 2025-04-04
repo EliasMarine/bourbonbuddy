@@ -9,13 +9,14 @@ export default function Home() {
       <section className="relative min-h-[100vh] flex items-center">
         {/* Background with overlay */}
         <div className="absolute inset-0 bg-black/30 z-10"></div>
+        
+        {/* Background image - using standard img tag for maximum browser compatibility */}
         <div className="absolute inset-0 overflow-hidden">
-          <Image 
-            src="/images/backgrounds/Bourbon_barrerls.jpg" 
-            alt="Bourbon barrels" 
-            fill
-            priority
-            className="object-cover"
+          <img
+            src="/images/backgrounds/Homepage%20background/bourbon_bg.png"
+            alt="Bourbon background"
+            className="w-full h-full object-cover"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </div>
         

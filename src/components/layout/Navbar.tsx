@@ -92,7 +92,7 @@ export default function Navbar() {
 
   // Get user profile picture
   const getProfileImage = () => {
-    if (session?.user?.image) {
+    if (status === 'authenticated' && session?.user?.image) {
       return (
         <Image 
           src={session.user.image} 
@@ -106,14 +106,14 @@ export default function Navbar() {
     
     return (
       <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center text-amber-500 font-bold">
-        {session?.user?.name?.[0].toUpperCase() || 'U'}
+        {status === 'authenticated' && session?.user?.name?.[0].toUpperCase() || 'U'}
       </div>
     );
   };
   
   // Mobile version of profile image
   const getMobileProfileImage = () => {
-    if (session?.user?.image) {
+    if (status === 'authenticated' && session?.user?.image) {
       return (
         <Image 
           src={session.user.image} 
@@ -127,7 +127,7 @@ export default function Navbar() {
     
     return (
       <div className="w-10 h-10 rounded-full bg-amber-600/20 flex items-center justify-center text-amber-500 font-bold">
-        {session?.user?.name?.[0].toUpperCase() || 'U'}
+        {status === 'authenticated' && session?.user?.name?.[0].toUpperCase() || 'U'}
       </div>
     );
   };
@@ -181,7 +181,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center">
               {status === 'loading' ? (
                 <div className="w-8 h-8 rounded-full bg-gray-700 animate-pulse"></div>
-              ) : session ? (
+              ) : status === 'authenticated' && session ? (
                 <div className="relative">
                   <button
                     ref={profileButtonRef}
@@ -205,7 +205,7 @@ export default function Navbar() {
                       className="absolute right-0 mt-2 w-72 bg-gray-800 rounded-lg shadow-lg py-1 z-10 border border-gray-700"
                     >
                       <div className="px-4 py-4 border-b border-gray-700 flex items-center gap-3">
-                        {session.user?.image ? (
+                        {status === 'authenticated' && session.user?.image ? (
                           <Image 
                             src={session.user.image} 
                             alt="Profile" 
@@ -215,12 +215,12 @@ export default function Navbar() {
                           />
                         ) : (
                           <div className="w-12 h-12 rounded-full bg-amber-600/20 flex items-center justify-center text-amber-500 font-bold text-xl">
-                            {session.user?.name?.[0].toUpperCase() || 'U'}
+                            {status === 'authenticated' && session.user?.name?.[0].toUpperCase() || 'U'}
                           </div>
                         )}
                         <div className="w-full overflow-hidden">
-                          <p className="text-sm text-white font-medium truncate max-w-[180px]">{session.user?.name}</p>
-                          <p className="text-xs text-gray-400 truncate max-w-[180px]">{session.user?.email}</p>
+                          <p className="text-sm text-white font-medium truncate max-w-[180px]">{status === 'authenticated' && session.user?.name}</p>
+                          <p className="text-xs text-gray-400 truncate max-w-[180px]">{status === 'authenticated' && session.user?.email}</p>
                           <Link 
                             href="/profile"
                             className="text-xs text-amber-500 hover:text-amber-400 mt-1 inline-block"
@@ -424,7 +424,7 @@ export default function Navbar() {
                 {/* Mobile Authentication */}
                 {status !== 'loading' && (
                   <>
-                    {!session ? (
+                    {status !== 'authenticated' || !session ? (
                       <div className="mt-4 grid gap-2">
                         <Link
                           href="/login"
@@ -444,8 +444,8 @@ export default function Navbar() {
                         <div className="flex items-center gap-3 px-3 py-2 mb-4">
                           {getMobileProfileImage()}
                           <div className="overflow-hidden max-w-[70%]">
-                            <p className="font-medium text-white truncate max-w-full">{session.user?.name}</p>
-                            <p className="text-xs text-gray-400 truncate max-w-full">{session.user?.email}</p>
+                            <p className="font-medium text-white truncate max-w-full">{status === 'authenticated' && session.user?.name}</p>
+                            <p className="text-xs text-gray-400 truncate max-w-full">{status === 'authenticated' && session.user?.email}</p>
                             <Link 
                               href="/profile"
                               className="text-xs text-amber-500 hover:text-amber-400 mt-1 inline-block"

@@ -30,6 +30,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
+        <link rel="preload" href="/images/backgrounds/Homepage%20background/bourbon_bg.png" as="image" />
       </head>
       <body className={`${inter.className} min-h-screen bg-gray-900 text-white`}>
         <ClientLayout>
