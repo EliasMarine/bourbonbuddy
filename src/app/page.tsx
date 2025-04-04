@@ -1,24 +1,37 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Star, Database, Tv, Globe, ArrowUpRight } from 'lucide-react';
+import BackgroundSlider from '@/components/ui/BackgroundSlider';
 
 export default function Home() {
+  // Define the background images to use in the slider
+  const backgroundImages = [
+    '/images/backgrounds/Homepage background/bourbon_bg.png',
+    '/images/backgrounds/Homepage background/jon-tyson-nHBZT4Qi44Y-unsplash.jpg',
+    '/images/backgrounds/Homepage background/geon-george-WKw5sOVf8XI-unsplash.jpg',
+    '/images/backgrounds/Homepage background/zhijian-dai-35R2-iOTmks-unsplash.jpg',
+    '/images/backgrounds/Homepage background/vianney-cahen-MJYYiC228mY-unsplash.jpg',
+    '/images/backgrounds/Homepage background/getty-images-ZUxHYKX6ML8-unsplash.jpg'
+  ];
+
+  // Define overlay elements for the background
+  const overlayElements = (
+    <>
+      <div className="absolute inset-0 bg-black/30 z-10"></div>
+    </>
+  );
+
   return (
     <>
       {/* Hero Section - with Apple-like fullscreen imagery and minimal text */}
       <section className="relative min-h-[100vh] flex items-center">
-        {/* Background with overlay */}
-        <div className="absolute inset-0 bg-black/30 z-10"></div>
-        
-        {/* Background image - using standard img tag for maximum browser compatibility */}
-        <div className="absolute inset-0 overflow-hidden">
-          <img
-            src="/images/backgrounds/Homepage%20background/bourbon_bg.png"
-            alt="Bourbon background"
-            className="w-full h-full object-cover"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </div>
+        {/* Background with slider */}
+        <BackgroundSlider 
+          images={backgroundImages}
+          interval={12000} // 12 seconds
+          transitionDuration={2000} // 2 seconds fade
+          overlay={overlayElements}
+        />
         
         {/* Hero Content - Apple-inspired centered and minimal */}
         <div className="container relative mx-auto px-6 md:px-8 z-30 flex flex-col items-center text-center h-full pt-32 md:pt-0">
